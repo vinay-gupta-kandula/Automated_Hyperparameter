@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.pyc
+
+# Outputs
+outputs/
+mlruns/
+optuna_study.db
+
+# OS files
+.DS_Store
+Thumbs.db
