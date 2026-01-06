@@ -1,0 +1,35 @@
+# ---- Version Control ----
+.git
+.gitignore
+
+# ---- Python & Environment ----
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.ipynb_checkpoints
+
+# ---- Local MLOps Outputs ----
+# Do NOT copy local results; the container must generate its own
+outputs/
+mlruns/
+optuna_study.db
+
+# ---- Docker & IDE Files ----
+Dockerfile
+.dockerignore
+.vscode/
+.idea/
+
+# ---- OS Files ----
+.DS_Store
+Thumbs.db
+
+# NOTE: data/california_housing.csv is NOT ignored here 
+# so that 'COPY data ./data' in your Dockerfile works.

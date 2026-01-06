@@ -101,6 +101,23 @@ def main():
     test_r2 = r2_score(y_test, y_pred)
 
     # -------------------------
+    # Optuna visualizations & File Setup
+    # -------------------------
+    from optuna.visualization import (
+        plot_optimization_history,
+        plot_param_importances
+    )
+
+    os.makedirs("outputs", exist_ok=True)
+    
+    # Save plots to disk first so they can be logged as artifacts
+    history_path = "outputs/optimization_history.png"
+    importance_path = "outputs/param_importance.png"
+    
+    plot_optimization_history(study).write_image(history_path)
+    plot_param_importances(study).write_image(importance_path)
+
+    # -------------------------
     # Final MLflow run
     # -------------------------
     with mlflow.start_run(run_name="best_model"):
@@ -111,27 +128,14 @@ def main():
         mlflow.log_metric("test_rmse", test_rmse)
         mlflow.log_metric("test_r2", test_r2)
 
+        # Log the generated plots as MLflow artifacts
+        mlflow.log_artifact(history_path)
+        mlflow.log_artifact(importance_path)
+
         mlflow.xgboost.log_model(
             best_model,
             artifact_path="model"
         )
-
-    # -------------------------
-    # Optuna visualizations
-    # -------------------------
-    from optuna.visualization import (
-        plot_optimization_history,
-        plot_param_importances
-    )
-
-    os.makedirs("outputs", exist_ok=True)
-
-    plot_optimization_history(study).write_image(
-        "outputs/optimization_history.png"
-    )
-    plot_param_importances(study).write_image(
-        "outputs/param_importance.png"
-    )
 
     # -------------------------
     # Save final results (delegate to evaluate.py)
