@@ -1,10 +1,5 @@
 import random
 import numpy as np
-
-SEED = 42
-random.seed(SEED)
-np.random.seed(SEED)
-
 import time
 import os
 
@@ -22,9 +17,15 @@ from data_loader import load_and_split_data
 from objective import objective
 from evaluate import save_results
 
+SEED = 42
+random.seed(SEED)
+np.random.seed(SEED)
 
 def main():
     start_time = time.time()
+
+    # MODIFICATION 1: Ensure directory exists at the very start using absolute path
+    os.makedirs("/app/outputs", exist_ok=True)
 
     # -------------------------
     # Load data
@@ -48,12 +49,14 @@ def main():
         n_warmup_steps=5
     )
 
+    # MODIFICATION 2: Use absolute path with four slashes for SQLite
+    # This ensures the database file is created inside the mounted volume correctly.
     study = optuna.create_study(
         study_name="xgboost-housing-optimization",
         direction="maximize",
         sampler=sampler,
         pruner=pruner,
-        storage="sqlite:///optuna_study.db",
+        storage="sqlite:////app/outputs/optuna_study.db",
         load_if_exists=True
     )
 
@@ -107,12 +110,10 @@ def main():
         plot_optimization_history,
         plot_param_importances
     )
-
-    os.makedirs("outputs", exist_ok=True)
     
-    # Save plots to disk first so they can be logged as artifacts
-    history_path = "outputs/optimization_history.png"
-    importance_path = "outputs/param_importance.png"
+    # Using absolute paths for outputs
+    history_path = "/app/outputs/optimization_history.png"
+    importance_path = "/app/outputs/param_importance.png"
     
     plot_optimization_history(study).write_image(history_path)
     plot_param_importances(study).write_image(importance_path)
@@ -128,7 +129,6 @@ def main():
         mlflow.log_metric("test_rmse", test_rmse)
         mlflow.log_metric("test_r2", test_r2)
 
-        # Log the generated plots as MLflow artifacts
         mlflow.log_artifact(history_path)
         mlflow.log_artifact(importance_path)
 
@@ -144,9 +144,9 @@ def main():
         study=study,
         test_rmse=test_rmse,
         test_r2=test_r2,
-        optimization_time_seconds=time.time() - start_time
+        optimization_time_seconds=time.time() - start_time,
+        output_dir="/app/outputs"
     )
-
 
 if __name__ == "__main__":
     main()
