@@ -26,11 +26,12 @@ RUN apt-get update && apt-get install -y \
 # ---- Python dependencies ----
 # Copy requirements first to leverage Docker layer caching
 COPY requirements.txt .
-RUN python -m pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt && \
-    pip install kaleido plotly
 
-# ---- Set MLflow Tracking URI (Crucial for 100 marks) ----
+# Updated to only run pip install -r requirements.txt
+RUN python -m pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# ---- Set MLflow Tracking URI ----
 # This ensures mlruns is created inside the mounted /app/outputs volume
 ENV MLFLOW_TRACKING_URI=file:///app/outputs/mlruns
 
